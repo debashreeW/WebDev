@@ -11,8 +11,18 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("content-type", "text/html; charset=utf-8")
 	fmt.Fprint(w, "<h1>Contact Page</h1><p>Contact us at: <a href=\"mailto:dw@gmail.com\">dw@gmail.com</a></p>")
+}
+
+func faqHandler(w http.ResponseWriter, r *http.Request) {
+
+	// If you only want to serve 1 file and not a full directory, you can use http.ServeFile
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	//     http.ServeFile(w, r, "index.html")
+	// })
+
+	handler := http.StripPrefix("/faq", http.FileServer(http.Dir("./static")))
+	handler.ServeHTTP(w, r)
 }
 
 // CASE - 1, 2	// Standalone handler created to handle different routes
@@ -53,9 +63,11 @@ func (route Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		homeHandler(w, r)
 	case "/contact":
 		contactHandler(w, r)
+	case "/faq":
+		faqHandler(w, r)
 	default:
 		w.WriteHeader(http.StatusNotFound)
-		message := fmt.Sprintf("<h1> %d - Page Not Found</h1><p>Please redirect to:<ul><li><a href=\"\\\">Home</a></li><li><a href=\"\\contact\">Contact</a></li></ul></p>", http.StatusNotFound)
+		message := fmt.Sprintf("<h1> %d - Page Not Found</h1><p>Please redirect to:<ul><li><a href=\"\\\">Home</a></li><li><a href=\"\\contact\">Contact</a></li><li><a href=\"\\faq\">FAQs</a></li></ul></p>", http.StatusNotFound)
 		fmt.Fprint(w, message)
 	}
 }
